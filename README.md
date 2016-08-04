@@ -12,6 +12,7 @@ currently supports these commands:
 	
     !add
     !remove
+    !players <number>
     !teams (!list)
     !nominated
     !nominate <map_name>
