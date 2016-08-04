@@ -40,3 +40,10 @@ TODO:
 	    !bet <$>
 	    !call
 	    !fold
+
+    npm install steam // steamclient for node, msg bot to !add !teams ...
+    npm install srcds-rcon // to get chat !admin !map <mapname> !restart !teams ...
+
+	-parse logs for stats
+	-set up a 2v2 leaderboard/ladder
+	-http interface webchat/click to add/launch
