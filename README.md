@@ -18,10 +18,24 @@ currently supports these commands:
     !end
     !vote <number>
 
-todo
+TODO:
 
     !pickup <players>
     !sub
     !captain <red | blue> <player>
     !pick <player>
-    !red | blue <player>
+    !red | !blue <player>
+    !shuffle
+    !map <map_name>
+    !hold
+    !unhold
+    !transfer
+    !veto
+    !sendinfo
+    !cancelsub
+    !changeteam
+    
+    !deal
+	    !bet <$>
+	    !call
+	    !fold
