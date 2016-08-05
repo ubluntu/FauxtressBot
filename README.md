@@ -18,23 +18,20 @@ currently supports these commands:
     !nominate <map_name>
     !end
     !vote <number>
+    !captain
+    	!red | !blue <player>
 
 TODO:
 
-    !pickup <players>
     !sub
-    !captain <red | blue> <player>
     !pick <player>
-    !red | !blue <player>
     !shuffle
     !map <map_name>
     !hold
     !unhold
     !transfer
-    !veto
     !sendinfo
     !cancelsub
-    !changeteam
     
     !deal
 	    !bet <$>

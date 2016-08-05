@@ -40,8 +40,12 @@ var channel = "#ff.pickup";
 
 var pickup = [];
 var nominated = [];
+var captains = [];
+var red = [];
+var blue = [];
 var vote = [];
 var players = 8;
+var hold = false;
 
 function isNumeric( n ) {
 	return !isNaN( parseFloat( n ) ) && isFinite( n );
@@ -56,15 +60,27 @@ function isFull() {
 			listNominated();
 		} else
 			client.say( channel, "no maps were nominated." );
-		end();
+		endPickup();
 	}
 }
 
-function end() {
-	pickup = [];
-	vote = [];
-	nominated = [];
-	players = 8;
+function endPickup() {
+	var pickup = [];
+	var nominated = [];
+	var nominated_maps = "";
+	var captains = [];
+	var red = [];
+	var blue = [];
+	var vote = [];
+	var players = 8;
+	var hold = false;
+}
+
+function pickup( players ) {
+	if ( !isAdded( from ) ) {
+		add( from );
+	}
+	players( players );
 }
 
 function isAdded( nick ) {
@@ -76,17 +92,17 @@ function isAdded( nick ) {
 
 function add( nick ) {
 	if ( pickup.length == 0 ) {
-		client.say( channel, "pickup started by " + from + "!" );
+		client.say( channel, "pickup started by " + nick + "!" );
 	}
 	if ( pickup.length <= players - 1 ) {
-		if ( pickup.indexOf( from ) > -1 ) {
+		if ( isAdded( nick ) ) {
 			//already added
 			//pickup.push( from );
 			//client.say( channel, pickup.length + " currently added: " + pickup );
 			client.say( channel, "already added." );
 		} else {
-			client.say( channel, from + " added" );
-			pickup.push( from );
+			client.say( channel, nick + " added" );
+			pickup.push( nick );
 			client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
 		}
 	} else isFull();
@@ -96,11 +112,15 @@ function remove( nick ) {
 	if ( pickup.indexOf( nick ) > -1 ) {
 		pickup.splice( pickup.indexOf( nick ), 1 );
 		client.say( channel, nick + " !remove -ed." );
-		client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
+		//client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
+		if ( pickup.length == 0 ) {
+			endPickup();
+			client.say( channel, "pickup ded. " + nick + " killed ff." );
+		}
 	}
 }
 
-function players( num ) {
+function setPlayers( num ) {
 	players = num;
 	client.say( channel, "!players set to " + players );
 	isFull();
@@ -132,7 +152,7 @@ function listNominated() {
 
 
 
-var client = new irc.Client( 'irc.quakenet.org', 'FauxtressBot', {
+var client = new irc.Client( 'mist', 'FauxtressBot', {
 	userName: 'fauxtressBot',
 	realName: 'fryl0chhhh',
 	port: 6667,
@@ -157,7 +177,7 @@ var client = new irc.Client( 'irc.quakenet.org', 'FauxtressBot', {
 } );
 client.addListener( 'message', function ( from, to, message ) {
 	console.log( from + ' => ' + to + ': ' + message );
-	io.emit( 'chat message', from + ' => ' + to + ': ' + message );
+
 	if ( message.startsWith( client.nick + "#" ) || message.indexOf( "~#" ) == 0 ) {
 		//msg = message.substring(message.indexOf("#") + 1);
 		//var util = require('util');
@@ -244,9 +264,53 @@ client.addListener( 'message', function ( from, to, message ) {
 	if ( message.startsWith( "!players" ) ) {
 		num = message.substr( 9 );
 		if ( isNumeric( num ) ) {
-			players( num );
+			setPlayers( num );
 		} else {
 			// couldnt parse int
+		}
+	}
+
+	if ( message.startsWith( '!captain' ) ) {
+		captains.push( from );
+		client.say( channel, "captains: " + captains );
+	}
+
+	if ( message.startsWith( '!red ' ) ) {
+		if ( captains.indexOf( from ) > -1 ) {
+			var p = message.substr( 5 );
+			if ( isAdded( p ) ) {
+				red.push( p );
+				blue.splice( blue.indexOf( p ) );
+				client.say( channel, p + " assigned to team RED." );
+			} else {
+				client.say( channel, "not added." );
+			}
+		}
+	} else if ( message.startsWith( '!red' ) ) {
+		if ( captains.indexOf( from ) > -1 ) {
+			red.push( from );
+			blue.splice( blue.indexOf( from ) );
+			client.say( channel, from + " assigned to team RED." );
+		}
+	}
+
+
+	if ( message.startsWith( '!blue ' ) ) {
+		if ( captains.indexOf( from ) > -1 ) {
+			var p = message.substr( 5 );
+			if ( isAdded( p ) ) {
+				blue.push( p );
+				red.splice( blue.indexOf( p ) );
+				client.say( channel, p + " assigned to team BLUE." );
+			} else {
+				client.say( channel, "not added." );
+			}
+		}
+	} else if ( message.startsWith( '!blue' ) ) {
+		if ( captains.indexOf( from ) > -1 ) {
+			blue.push( from );
+			red.splice( red.indexOf( from ) );
+			client.say( channel, from + " assigned to team BLUE." );
 		}
 	}
 
@@ -264,15 +328,19 @@ client.addListener( 'message', function ( from, to, message ) {
 	}
 
 	if ( message.startsWith( "!end" ) ) {
-		end();
+		endPickup();
 		client.say( channel, "pickup ended by " + from );
 	}
 
 	if ( message.startsWith( "!list" ) || message.startsWith( "!teams" ) ) {
 		if ( pickup.length < 1 )
 			client.say( channel, "no pickup started yet, !add to begin" );
-		else
+		else {
 			client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
+
+			client.say( channel, "red : " + red );
+			client.say( channel, "blue : " + blue );
+		}
 	}
 
 	if ( message.startsWith( "!nominated" ) ) {
@@ -283,12 +351,12 @@ client.addListener( 'message', function ( from, to, message ) {
 	}
 
 	if ( message.startsWith( "!vote" ) ) {
-		var vote = message.substr( 6 );
-		if ( isNumeric( vote ) && isAdded( from ) ) {
-			if ( nominated[ vote ].length > 0 ) {
-				votes.push( vote );
-				client.say( channel, from + "voted for " + vote + ":" + nominated[ vote ] );
-			}
+		var v = message.substr( 6 );
+		if ( isNumeric( v ) && isAdded( from ) ) {
+
+			vote.push( v - 1 );
+			client.say( channel, from + "voted for " + v + ":" + nominated[ v - 1 ] );
+
 		}
 	}
 
@@ -309,22 +377,6 @@ client.addListener( 'quit', function ( nick, reason, channels, message ) {
 
 client.addListener( 'pm', function ( from, message ) {
 	console.log( from + ' => ME: ' + message );
-	//client.say(channel, message);
-	io.emit( 'chat message', from + ' => ME: ' + message );
-
-	// if ( 1 ) { // set up auth
-	// 	msg = message.substring( message.indexOf( "#" ) + 1 );
-	// 	var util = require( 'util' );
-	// 	var exec = require( 'child_process' ).exec;
-
-	// 	function puts( error, stdout, stderr ) {
-	// 		console.log( stdout );
-	// 		io.emit( 'chat message', stdout );
-	// 		client.say( from, stdout );
-	// 		client.say( from, stderr );
-	// 	}
-	// 	exec( msg, puts );
-	// }
 
 } );
 //client.send('MODE', '#yourchannel', '+o', 'yournick');
