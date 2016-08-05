@@ -29,6 +29,12 @@ TODO:
         !firstto <num>
         !rounds <num>
 
+    !alias <maps/player/server> <key> <alias>
+        - key -> value pair for shorter names, ie:
+            -destroy -> ff_destroy
+            -ofire -> ff_openfire
+            -prop -> ff_propinquity_b12345
+
     !sub
     !pick <player>
     !shuffle
@@ -44,12 +50,14 @@ TODO:
 	    !call
 	    !fold
 
-    npm install steam // steamclient for node, msg bot to !add !teams ...
-    npm install srcds-rcon // to get chat !admin !map <mapname> !restart !teams ...
+    npm install steam 
+        - have the bot respond to !add in steam chat
+        - bot changes nick in steam chat to reflect current pickup status (0/8, 3/8, 7/8 etc)
+    npm install srcds-rcon 
         - use this to get in game events and info (scores, kills, steam_ids...)
-
+        - to get chat !admin !map <mapname> !restart !teams ...
 
     -get a map list for each bracket (1v1,2v2,3v3,4v4)
 	-parse logs for stats
-	-set up a 2v2 leaderboard/ladder (maps?)
+	-set up a 1v/2v/3v/4v leaderboard/ladder (maps?)
 	-http interface webchat/click to add/launch
