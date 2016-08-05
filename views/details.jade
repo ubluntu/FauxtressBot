@@ -1,0 +1,147 @@
+extends layout
+
+block headjs
+	link(rel='stylesheet', href='/javascripts/SlickGrid/slick.grid.css')
+	link(rel='stylesheet', href='/javascripts/SlickGrid/examples/examples.css')
+
+block jquerylib
+
+
+
+block content
+	if (data)
+		div#data.hidden #{punchdata}
+		div#csv
+
+		each punch in data
+			div.hidden="In at " + punch.in + ", out at " + punch.out + " duration = "+ (punch.out - punch.in)/1000/60/60 + " hours"
+				a(href='/edit_punch/'+punch._id) edit punch
+
+		script(src='/javascripts/SlickGrid/slick.core.js')
+		script(src='/javascripts/SlickGrid/lib/jquery.event.drag-2.2.js')
+		script(src='/javascripts/SlickGrid/slick.editors.js')
+		script(src='/javascripts/SlickGrid/plugins/slick.cellrangedecorator.js')
+		script(src='/javascripts/SlickGrid/plugins/slick.cellrangeselector.js')
+		script(src='/javascripts/SlickGrid/plugins/slick.cellselectionmodel.js')
+		script(src='/javascripts/SlickGrid/slick.grid.js')
+
+
+		h3 Punch Details for 
+			if (req_user)
+				a#username(href="/profile/#{req_user}") #{req_user}
+			else
+				a#username(href="/profile/#{user.username}") #{user.username}
+
+		div#myGrid(style="width:100%;height:500px;")
+
+		script.
+
+			var grid;
+			var columns = [
+				{ id: "in", name: "In", field: "in", sortable: true, formatter: dateFormatter},
+				{ id: "out", name: "Out", field: "out", sortable: true, formatter: dateFormatter},
+				{ id: "duration", name: "Duration", field: "duration", sortable: true, formatter: dayFormatter},
+				{ id: "edit", field:'edit', name:'Edit', width: 45, maxWidth: 45, formatter:editButtonFormatter},
+				{ id: "del", field:'del', name:'Delete', width: 55, maxWidth: 55, formatter:deleteButtonFormatter}
+			];
+
+			function dayFormatter( row, cell, value, columnDef, dataContext ) {
+				return value + ' hours';
+			}
+
+			function dateFormatter( row, cell, value, columnDef, dataContext ) {
+				return value.format( "isoDate" ) + " " + value.format( "isoTime" );
+			}
+
+
+			function editButtonFormatter(row,cell,value,columnDef,dataContext){
+				var button = "<button id='"+ dataContext.id +"' class='btn btn-primary' style='height:100%;width:100%;font-size:9pt;padding:0px'>Edit</button>";
+				//the id is so that you can identify the row when the particular button is clicked
+				return button;
+				//Now the row will display your button
+			}
+
+			function deleteButtonFormatter(row,cell,value,columnDef,dataContext){
+				var button = "<button id='"+ dataContext.id +"' class='btn btn-primary' style='height:100%;width:100%;font-size:9pt;padding:0px' onclick='alert(\"are you sure you want to delete punch "+dataContext.id+"?\");'>Delete</button>";
+				//the id is so that you can identify the row when the particular button is clicked
+				return button;
+				//Now the row will display your button
+			}
+	
+
+			var options = {
+				editable: true,
+				enableCellNavigation: true,
+				enableColumnReorder: false,
+				multiColumnSort: true,
+				forceFitColumns: true
+			};
+			
+			$( function () {
+				var MS_PER_DAY = 24 * 60 * 60 * 1000;
+				var data = [];
+				for ( var i = 0; i < punchdata.length; i++ ) {
+
+					var inpunch = new Date(Date.parse(punchdata[i].in));
+					var outpunch = new Date(Date.parse(punchdata[i].out));
+
+					if (!punchdata[i].hasOwnProperty('out'))
+						{
+						alert("User is currently clocked in, last punch out being displayed as the current time");
+						outpunch = new Date(); // NOW
+						}
+
+					data[ i ] = {
+						id: punchdata[i]._id,
+						in: inpunch,
+						out: outpunch,
+						duration: ((outpunch - inpunch) / 1000 / 60 / 60).toFixed(2)
+					};
+				}
+
+				grid = new Slick.Grid( "#myGrid", data, columns, options );
+				grid.onSort.subscribe( function ( e, args ) {
+					var cols = args.sortCols;
+
+					data.sort( function ( dataRow1, dataRow2 ) {
+						for ( var i = 0, l = cols.length; i < l; i++ ) {
+							var field = cols[ i ].sortCol.field;
+							var sign = cols[ i ].sortAsc ? 1 : -1;
+							var value1 = dataRow1[ field ],
+								value2 = dataRow2[ field ];
+							var result = ( value1 == value2 ? 0 : ( value1 > value2 ? 1 : -1 ) ) * sign;
+							if ( result != 0 ) {
+								return result;
+							}
+						}
+						return 0;
+					} );
+
+					grid.invalidate();
+					grid.render();
+				} );
+			} );
+
+block footjs
+	script.
+		var punchdata = JSON.parse( $( '#data' ).text() );
+		for ( var i = 0; i < punchdata.length; i++ ) {
+				var row = []
+
+
+					var inpunch = new Date(Date.parse(punchdata[i].in));
+					var outpunch = new Date(Date.parse(punchdata[i].out));
+
+					if (!punchdata[i].hasOwnProperty('out'))
+						{
+						//alert("User is currently clocked in, last punch out being displayed as the current time");
+						outpunch = new Date(); // NOW
+						}
+
+					row.push($("#username").html());
+					row.push(inpunch.toString()); 
+					row.push(outpunch.toString()); 
+					row.push(((outpunch - inpunch) / 1000 / 60 / 60).toFixed(2));
+					$("#csv").html($("#csv").html() + row.join(",")+"\n<br>\n");
+
+				}

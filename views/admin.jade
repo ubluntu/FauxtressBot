@@ -1,0 +1,72 @@
+extends layout
+
+block headjs
+	link(rel='stylesheet', href='/javascripts/flot/examples/examples.css')
+	script(src='/javascripts/flot/jquery.flot.js')
+	script(src='/javascripts/flot/jquery.flot.time.js')
+	script(src='/javascripts/flot/jquery.flot.selection.js')
+	script(src='/javascripts/flot/jquery.flot.resize.js')
+	
+
+block footjs
+	script(src='/javascripts/chart.js')
+
+block content
+	.container
+
+		div.demo-container
+			div#placeholder.demo-placeholder
+		div.demo-container(style='height:95px;')
+			div#overview.demo-placeholder
+
+
+		div#accordion.panel-group
+			div.panel.panel-default
+				div.panel-heading
+					h4.panel-title
+						a(data-toggle='collapse', data-parent='#accordion', href="#collapse1") Users Currently In
+				div#collapse1.panel-collapse.collapse.in
+					each val, index in users
+						if val.status === "IN"
+							//li= index + ' -> ' + val
+							div.panel-body= val.username + " ("+val.first_name+" "+val.last_name+") punched "+val.status+" @ " + val.timestamp
+								br
+								table
+									tr
+										td
+											button.btn.btn-primary  Punch #{val.username} OUT
+										td
+											button(onClick="window.location.replace('/profile/#{val.username}');").btn.btn-primary profile
+										td
+											button(onClick="window.location.replace('/details/#{val.username}');").btn.btn-primary punch details
+
+
+		div#accordion2.panel-group
+			div.panel.panel-default
+				div.panel-heading
+					h4.panel-title
+						a(data-toggle='collapse', data-parent='#accordion2', href="#collapse2") Users Currently Out
+				div#collapse2.panel-collapse.collapse.in
+					each val, index in users
+						if val.status === "OUT"
+							//li= index + ' -> ' + val
+							div.panel-body= val.username + " ("+val.first_name+" "+val.last_name+") punched "+val.status+" @ " + val.timestamp
+								br
+								table
+									tr
+										td
+											button.btn.btn-primary  Punch #{val.username} IN
+										td
+											button(onClick="window.location.replace('/profile/#{val.username}');").btn.btn-primary profile
+										td
+											button(onClick="window.location.replace('/details/#{val.username}');").btn.btn-primary punch details
+		if (first)
+			div#first #{first}
+		if (last)
+			div#last #{last}
+		if (data)
+			div#data.collapsed.hidden #{data}
+			script.
+				var punchdata = unescape("#{data}");
+		if (userpunches)
+			div#userpunches #{userpunches}

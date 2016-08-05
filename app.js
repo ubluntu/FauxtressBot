@@ -1,7 +1,80 @@
-//var app = require( 'express' )();
-//var shell = require('shelljs');
-//var http = require( 'http' ).Server( app );
-//var io = require( 'socket.io' )( http );
+// dependencies
+var express = require( 'express' );
+var path = require( 'path' );
+var favicon = require( 'serve-favicon' );
+var logger = require( 'morgan' );
+var cookieParser = require( 'cookie-parser' );
+var bodyParser = require( 'body-parser' );
+var mongoose = require( 'mongoose' );
+var passport = require( 'passport' );
+var flash = require( 'connect-flash' );
+var LocalStrategy = require( 'passport-local' ).Strategy;
+var routes = require( './routes/index' );
+var app = express();
+
+app.use( flash() );
+// view engine setup
+app.set( 'views', path.join( __dirname, 'views' ) );
+app.set( 'view engine', 'jade' );
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(__dirname + '/public/favicon.ico'));
+//app.use(logger(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'));
+app.use( bodyParser.json() );
+app.use( bodyParser.urlencoded( { extended: false } ) );
+app.use( cookieParser() );
+app.use( require( 'express-session' )( {
+	secret: 'keyboard cat',
+	resave: false,
+	saveUninitialized: false
+} ) );
+app.use( passport.initialize() );
+app.use( passport.session() );
+app.use( express.static( path.join( __dirname, 'public' ) ) );
+
+
+app.use( '/', routes );
+
+// passport config
+var Account = require( './models/account' );
+passport.use( new LocalStrategy( Account.authenticate() ) );
+passport.serializeUser( Account.serializeUser() );
+passport.deserializeUser( Account.deserializeUser() );
+
+// mongoose
+mongoose.connect( 'mongodb://localhost/passport_local_mongoose_express4' );
+
+// catch 404 and forward to error handler
+app.use( function ( req, res, next ) {
+	var err = new Error( 'Not Found' );
+	err.status = 404;
+	next( err );
+} );
+
+// error handlers
+
+// development error handler
+// will print stacktrace
+if ( app.get( 'env' ) === 'development' ) {
+	app.use( function ( err, req, res, next ) {
+		res.status( err.status || 500 );
+		res.render( 'error', {
+			message: err.message,
+			error: err
+		} );
+	} );
+}
+
+// production error handler
+// no stacktraces leaked to user
+app.use( function ( err, req, res, next ) {
+	res.status( err.status || 500 );
+	res.render( 'error', {
+		message: err.message,
+		error: {},
+	} );
+} );
+
 var base32 = require( 'thirty-two' );
 var notp = require( 'notp' );
 var irc = require( 'irc' );
@@ -36,7 +109,7 @@ var login = notp.totp.verify( user_code, key );
 //someone requested poker (i forget who) : deal hands to people who are !added?
 //var Hand = require( 'pokersolve' ).Hand;
 
-var channel = "#ff.pickup";
+var channel = "#FauxtressBot";
 
 var pickup = [];
 var nominated = [];
@@ -152,7 +225,7 @@ function listNominated() {
 
 
 
-var client = new irc.Client( 'mist', 'FauxtressBot', {
+var client = new irc.Client( 'irc.quakenet.org', 'FauxtressBot', {
 	userName: 'fauxtressBot',
 	realName: 'fryl0chhhh',
 	port: 6667,
@@ -386,6 +459,4 @@ client.addListener( 'error', function ( message ) {
 	client.say( channel, message );
 } );
 
-
-
-//win
+module.exports = app;

@@ -1,0 +1,42 @@
+extends layout
+
+block content
+	.container
+		h1 Profile
+		if (admin)
+			p.lead account information for user: #{user.username}
+		else
+			p.lead account information
+		br
+		form(role='form', action="/profile",method="post", style='max-width: 300px;')
+			.form-group
+				label(for='username') Username:
+				input.form-control(type='text', name="username", placeholder="Username", value='#{user.username}',readonly)
+				br
+				label(for='email') E-mail Address:
+				input.form-control(type='text', name="email", placeholder="Email", value='#{user.email}')
+				br
+				label(for='first_name') First Name:
+				input.form-control(type='text', name="first_name", placeholder="First Name", value='#{user.first_name}')
+				br
+				label(for='last_name') Last Name:
+				input.form-control(type='text', name="last_name", placeholder="Last Name", value='#{user.last_name}')
+				br
+				label(for='contact_phone') Phone Number:
+				input.form-control(type='text', name="contact_phone", placeholder="Phone Number" value='#{user.contact_phone}')
+				br
+				label(for='pin') PIN:
+				input.form-control(type='text', name="pin", placeholder="PIN", value='#{user.pin}')
+			if (admin)
+				label(for='admin') Access Level:
+				select.selectpicker.form-control(name="admin")
+					option(value='false') Regular User
+					if (user.admin)
+						option(value='true', selected) Administrator
+					else
+						option(value='true') Administrator
+				br
+
+			button.btn.btn-default(type='submit') Submit
+			a(href='/')
+				button.btn.btn-primary(type="button") Cancel

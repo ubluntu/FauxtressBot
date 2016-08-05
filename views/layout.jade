@@ -1,0 +1,57 @@
+doctype html
+html
+	head
+		title= title
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+	block bslibs
+		script(src='/javascripts/SlickGrid/lib/jquery-1.11.2.min.js')
+		script(src='/javascripts/SlickGrid/lib/jquery-ui-1.11.3.min.js')
+		link(href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css', rel='stylesheet', media='screen')
+		script(src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js')
+	block css
+		link(rel='stylesheet', href='/stylesheets/style.css')
+		link(rel='stylesheet', href='/stylesheets/clock.css')
+		link(rel='stylesheet', href='/stylesheets/jquery.flipcountdown.css')
+		link(rel='stylesheet', href='/stylesheets/jquery.numpad.css')
+		link(rel='stylesheet', href='/javascripts/flot/examples/examples.css')
+		link(rel='stylesheet', href='/javascripts/SlickGrid/css/smoothness/jquery-ui-1.11.3.custom.css')
+	block jquerylib
+		script(src='/javascripts/SlickGrid/slick.core.js')
+		script(src='/javascripts/SlickGrid/lib/jquery.event.drag-2.2.js')
+		script(src='/javascripts/SlickGrid/slick.editors.js')
+		script(src='/javascripts/SlickGrid/plugins/slick.cellrangedecorator.js')
+		script(src='/javascripts/SlickGrid/plugins/slick.cellrangeselector.js')
+		script(src='/javascripts/SlickGrid/plugins/slick.cellselectionmodel.js')
+		script(src='/javascripts/SlickGrid/slick.grid.js')
+		script(src='/javascripts/jquery.numpad.js')
+	block misclib
+		script(src='/javascripts/dateformat.js')
+	block headjs
+		script.
+			$(document).ready(function(){
+				$('#pin').numpad({
+					hidePlusMinusButton: true,
+					hideDecimalButton: true	
+				});
+			});
+
+	body
+		div.overlay
+		include navbar
+		.container
+		if (error && error.length > 0)
+			br
+			h4.error-msg= error
+			br
+		if (messages && messages.length > 0)
+			br
+			h4.info-msg= messages
+			br
+
+		block content
+
+	script(src='/javascripts/jquery.flipcountdown.js')  
+	script(src='/javascripts/clock.js')
+
+	block footjs
+

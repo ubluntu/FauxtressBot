@@ -1,0 +1,126 @@
+body {
+  padding: 5px;
+  padding-top:100px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+
+
+a {
+  color: #00B7FF;
+}
+
+.error-msg {
+	color: #880000;
+}
+
+.info-msg {
+	color: #008800;
+}
+
+
+td.punch{
+	width:50%;
+}
+
+button.punch
+{
+	width:100%;
+}
+
+table.button-grid
+{
+	width:100%;
+}
+
+textarea.form-control
+{
+	width: 100%;
+}
+
+.navbar-nav
+{
+	float:right;
+}
+
+.footer-content
+{
+	padding:0px;
+	position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.punch.in
+{
+	background-color: #008800;
+	content : "Punch IN";
+}
+.punch.in:after
+{
+	content: "Punch IN";
+}
+
+.punch.out
+{
+	background-color: #880000;
+}
+.punch.out:after
+{
+	content: "Punch OUT";
+}
+
+
+.dropdown-menu
+{
+	left: -80px;
+}
+
+.numero
+{
+	width: 75px;
+	height: 75px;
+	font-size:3em;
+	font-family: monospace;
+}
+
+.done
+{
+	width: 100%;
+	height: 100%;
+}
+
+.clear
+{
+	width: 100%;
+	height: 100%;
+}
+.cancel
+{
+	width: 100%;
+	height: 100%;
+}
+.del
+{
+	width: 100%;
+	height: 100%;
+}
+
+.nmpd-display
+{
+	width: 100%;
+	font-size:2em;
+	height:50px;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 100;
+    visibility: hidden;
+}
+

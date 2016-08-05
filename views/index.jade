@@ -1,0 +1,24 @@
+extends layout
+
+block content
+	if (!user)
+		script.
+			$(function () {
+				$('#pin').click();
+			});
+	if (user)
+		br
+		p Hi #{user.username}, you are currently #{user.status}
+		p Last activity: #{user.timestamp}
+
+		form(role='form', action="/punch",method="get", style='max-width: 300px;')
+			table.button-grid.footer-content
+				tr
+					td.punch(colspan=4, width='100%', align='center')
+						if (user.status === 'IN')
+							button.btn.btn-primary.punch.out(type='submit', style="width:95%")
+						if (user.status === 'OUT')
+							button.btn.btn-primary.punch.in(type='submit', style="width:95%")
+				tr
+					td
+						div &nbsp;
