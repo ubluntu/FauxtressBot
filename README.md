@@ -24,28 +24,33 @@ currently supports these commands:
 TODO:
 
     !pickup <2v2 | 3v3 | 4v4>
+        - have a different map list per bracket
 
-    !duel <demo | solly> (!pickup 1v1, map mulch_dm (sniper/2fortsniper?), restrict classes)
-        !firstto <num>
-        !rounds <num>
+        !duel <demo | solly> (!pickup 1v1, additional rules to track scores, map mulch_dm (sniper/2fortsniper?), restrict classes)
+            !firstto <num>
+            !rounds <num>
+    !sub
+    !cancelsub
+    !admin - show pickup admin and active global admins
+    !admin <message> - send message to active admin 
 
-    !alias <maps/player/server> <key> <alias>
+    commands for admins/captains
+        !pick <player>
+            -assign player to your team
+        !shuffle
+            -randomize teams
+        !map <map_name>
+        !hold
+        !unhold
+        !transfer
+        !alias <map/player/server> <key> <alias>
         - key -> value pair for shorter names, ie:
             -destroy -> ff_destroy
             -ofire -> ff_openfire
             -prop -> ff_propinquity_b12345
 
-    !sub
-    !pick <player>
-    !shuffle
-    !map <map_name>
-    !hold
-    !unhold
-    !transfer
-    !sendinfo
-    !cancelsub
     
-    !deal
+    !deal // someone asked for poker, something to do while waiting for fill i guess
 	    !bet <$>
 	    !call
 	    !fold
