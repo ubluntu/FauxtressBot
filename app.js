@@ -76,35 +76,8 @@ app.use( function ( err, req, res, next ) {
 } );
 
 var base32 = require( 'thirty-two' );
-var notp = require( 'notp' );
+
 var irc = require( 'irc' );
-var nodes = 0;
-var otp = require( 'otplib/lib/authenticator' );
-var secret = otp.generateSecret();
-var qrcode = require( 'qrcode-terminal' );
-var counter = 0;
-var rate = 5000;
-var then = Math.round( Date.now() / 1000 );
-var now = then;
-
-var notp = require( 'notp' );
-var base32 = require( 'thirty-two' );
-
-var keylen = 128;
-
-var randomstring = require( 'randomstring' );
-var key = randomstring.generate( {
-	length: keylen,
-	charset: 'alphabetic'
-} );
-var encoded = base32.encode( key );
-console.log( key );
-//console.log( 'Token valid, sync value is %s', login.delta );
-
-// Google authenticator doesn't like equal signs
-var encodedForGoogle = encoded.toString().replace( /=/g, '' );
-var user_code = notp.totp.gen( key, counter++ );
-var login = notp.totp.verify( user_code, key );
 
 //someone requested poker (i forget who) : deal hands to people who are !added?
 //var Hand = require( 'pokersolve' ).Hand;
@@ -166,6 +139,7 @@ function isAdded( nick ) {
 function add( nick ) {
 	if ( pickup.length == 0 ) {
 		client.say( channel, "pickup started by " + nick + "!" );
+		captains.push( nick );
 	}
 	if ( pickup.length <= players - 1 ) {
 		if ( isAdded( nick ) ) {
@@ -218,7 +192,7 @@ function listNominated() {
 		}
 
 		client.say( channel, "nominated maps are - " + nominated_maps );
-		client.say( channel, "vote with !vote <number>, you know what you doing" );
+		//client.say( channel, "vote with !vote <number>, you know what you doing" );
 	}
 }
 // valid token
@@ -251,87 +225,8 @@ var client = new irc.Client( 'irc.quakenet.org', 'FauxtressBot', {
 client.addListener( 'message', function ( from, to, message ) {
 	console.log( from + ' => ' + to + ': ' + message );
 
-	if ( message.startsWith( client.nick + "#" ) || message.indexOf( "~#" ) == 0 ) {
-		//msg = message.substring(message.indexOf("#") + 1);
-		//var util = require('util');
-		//var exec = require('child_process').exec;
-
-		// function puts(error, stdout, stderr) {
-		//     console.log(stdout);
-		//     io.emit('chat message', stdout);
-		//     client.say(channel, stdout);
-		//     client.say(channel, stderr);
-
-		// }
-		// exec(msg, puts);
-
-		// var spawn = require( 'child_process' ).spawn;
-		// console.log( 'spawn ' + message );
-		// var shellSyntaxCommand = message;
-		// spawn( 'sh', [ '-c', shellSyntaxCommand ], {
-		// 	stdio: 'inherit'
-		// } );
-
-	}
-	if ( message.startsWith( "QR!" ) ) {
-		var tmp = '';
-		for ( var i = 0; i < keylen; i++ ) {
-			tmp = tmp + 'X';
-		}
-		client.say( channel, tmp );
-		qrcode.generate( '' + tmp, function ( qrcode ) {
-			var now = Math.round( Date.now() / 1000 );
-			console.log( qrcode );
-			client.say( channel, uri );
-			//client.say( channel, qrcode );
-			client.say( channel, "generated in " + ( now - then ) + "ms" );
-			then = now;
-		} );
-
-	}
-
-	// -----OTP
-	// 
-	if ( message.startsWith( "key!" ) ) { // spits out qr code for scanning into google authenticator of current key
-		// encoded will be the secret key, base32 encoded
-
-		// to create a URI for a qr code (change totp to hotp if using hotp)
-		var uri = 'otpauth://totp/' + client.nick + '?secret=' + encodedForGoogle;
-
-		// invalid token if login is null
-		if ( !login ) {
-			return console.log( 'Token invalid' );
-		}
-
-
-		var then = now;
-		qrcode.generate( uri, function ( qrcode ) {
-			var now = Math.round( Date.now() / 1000 );
-			console.log( qrcode );
-			client.say( channel, uri );
-			//client.say( channel, qrcode );
-			client.say( channel, "generated in " + ( now - then ) + "ms" );
-			then = now;
-		} );
-	}
-	if ( message == "!code" ) { // spit out current valid user code for verification
-		//client.say(channel, counter);
-		user_code = notp.totp.gen( key, counter++ );
-		//client.say("")
-		if ( notp.totp.verify( user_code, key ) )
-			client.say( channel, "current valid:" + message + " = " + user_code );
-	}
-	if ( message.endsWith( "!auth" ) && message.length > 5 ) { // read in user code for auth check
-		user_code = message.substr( 0, message.length - 5 );
-		//client.say(channel, "checking:" + user_code);
-		if ( notp.totp.verify( user_code, key ) )
-			client.say( channel, ":)" );
-		else
-			client.say( channel, ":(" );
-	}
 	if ( message.startsWith( "!add" ) ) {
 		add( from );
-
 	}
 
 	if ( message.startsWith( "!players" ) ) {
@@ -348,18 +243,7 @@ client.addListener( 'message', function ( from, to, message ) {
 		client.say( channel, "captains: " + captains );
 	}
 
-	if ( message.startsWith( '!red ' ) ) {
-		if ( captains.indexOf( from ) > -1 ) {
-			var p = message.substr( 5 );
-			if ( isAdded( p ) ) {
-				red.push( p );
-				blue.splice( blue.indexOf( p ) );
-				client.say( channel, p + " assigned to team RED." );
-			} else {
-				client.say( channel, "not added." );
-			}
-		}
-	} else if ( message.startsWith( '!red' ) ) {
+	if ( message.startsWith( '!red' ) ) {
 		if ( captains.indexOf( from ) > -1 ) {
 			red.push( from );
 			blue.splice( blue.indexOf( from ) );
@@ -368,18 +252,7 @@ client.addListener( 'message', function ( from, to, message ) {
 	}
 
 
-	if ( message.startsWith( '!blue ' ) ) {
-		if ( captains.indexOf( from ) > -1 ) {
-			var p = message.substr( 5 );
-			if ( isAdded( p ) ) {
-				blue.push( p );
-				red.splice( blue.indexOf( p ) );
-				client.say( channel, p + " assigned to team BLUE." );
-			} else {
-				client.say( channel, "not added." );
-			}
-		}
-	} else if ( message.startsWith( '!blue' ) ) {
+	if ( message.startsWith( '!blue' ) ) {
 		if ( captains.indexOf( from ) > -1 ) {
 			blue.push( from );
 			red.splice( red.indexOf( from ) );
@@ -428,12 +301,15 @@ client.addListener( 'message', function ( from, to, message ) {
 		if ( isNumeric( v ) && isAdded( from ) ) {
 
 			vote.push( v - 1 );
-			client.say( channel, from + "voted for " + v + ":" + nominated[ v - 1 ] );
+			client.say( channel, from + " voted for " + nominated[ v - 1 ] );
 
 		}
 	}
 
-
+	if ( voting && message.isNumeric && isAdded( from ) ) {
+		vote.push( message - 1 );
+		client.say( channel, from + " voted for " + nominated[ message - 1 ] );
+	}
 } );
 
 client.addListener( 'part' + channel, function ( nick, reason, message ) {
