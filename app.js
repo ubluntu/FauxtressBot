@@ -11,6 +11,7 @@ var flash = require( 'connect-flash' );
 var LocalStrategy = require( 'passport-local' ).Strategy;
 var routes = require( './routes/index' );
 var app = express();
+require( 'string.prototype.startswith' );
 
 app.use( flash() );
 // view engine setup
