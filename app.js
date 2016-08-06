@@ -94,7 +94,7 @@ var vote = [];
 var players = 8;
 var hold = false;
 var voting = false;
-var voted = [];
+var voted = {};
 
 function isNumeric( n ) {
 	return !isNaN( parseFloat( n ) ) && isFinite( n );
@@ -123,7 +123,7 @@ function endPickup() {
 	vote = [];
 	players = 8;
 	hold = false;
-	voted = [];
+	voted = {};
 }
 
 function pickup( players ) {
@@ -141,7 +141,7 @@ function isAdded( nick ) {
 }
 
 function hasVoted( nick ) {
-	if ( voted.indexOf( nick ) > -1 )
+	if ( typeof(voted[ nick ]) !== "undefined" )
 		return true;
 	else
 		return false;
@@ -311,15 +311,23 @@ client.addListener( 'message', function ( from, to, message ) {
 
 		if ( message.startsWith( "!nominated" ) ) {
 			listNominated();
-		} else if ( message.startsWith( "!nominate" ) ) {
-			nominated.push( message.substr( 9 ) );
+		} else if ( message.startsWith( "!nominate " ) ) {
+			nominated.push( message.substr( 10 ) );
 			client.say( channel, from + " nominated " + message.substr( 9 ) );
 		}
 
 		if ( message.startsWith( "!vote" ) ) {
 			var v = message.substr( 6 );
-			if ( isNumeric( v ) && isAdded( from ) && !hasVoted( from ) ) {
-
+			if ( nominated.indexOf(v) > -1)
+			{
+				v = nominated.indexOf(v)+1;
+			}
+			if ( isNumeric( v ) && isAdded( from ) ) {
+				
+				if( hasVoted( from ) ) {
+					vote.splice( vote.indexOf( voted[ from ] ) );
+				}
+				voted[ from ] = v-1;
 				vote.push( v - 1 );
 				client.say( channel, from + " voted for " + nominated[ v - 1 ] );
 
