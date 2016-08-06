@@ -92,6 +92,7 @@ var blue = [];
 var vote = [];
 var players = 8;
 var hold = false;
+var voting = false;
 
 function isNumeric( n ) {
 	return !isNaN( parseFloat( n ) ) && isFinite( n );
@@ -100,26 +101,26 @@ function isNumeric( n ) {
 function isFull() {
 	if ( pickup.length >= players ) {
 		client.say( channel, pickup.length + "/" + players + ": Pickup Full. Players are " + pickup );
-		client.say( channel, "copy/paste the teams and go to the server and figure it out yourselves." );
 
 		if ( nominated.length > 0 ) {
 			listNominated();
 		} else
-			client.say( channel, "no maps were nominated." );
-		endPickup();
+		//client.say( channel, "no maps were nominated." );
+			voting = true;
+		client.say( channel, "voting is now enabled. !nominate <maps> and !vote <number> !captains pick teams with !red or !blue then !pick <player>" );
 	}
 }
 
 function endPickup() {
-	var pickup = [];
-	var nominated = [];
-	var nominated_maps = "";
-	var captains = [];
-	var red = [];
-	var blue = [];
-	var vote = [];
-	var players = 8;
-	var hold = false;
+	pickup = [];
+	nominated = [];
+	nominated_maps = "";
+	captains = [];
+	red = [];
+	blue = [];
+	vote = [];
+	players = 8;
+	hold = false;
 }
 
 function pickup( players ) {
@@ -150,7 +151,7 @@ function add( nick ) {
 		} else {
 			client.say( channel, nick + " added" );
 			pickup.push( nick );
-			client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
+			client.say( channel, pickup.length + "/" + players + " pool: " + pickup );
 		}
 	} else isFull();
 }
@@ -162,7 +163,7 @@ function remove( nick ) {
 		//client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
 		if ( pickup.length == 0 ) {
 			endPickup();
-			client.say( channel, "pickup ded. " + nick + " killed ff." );
+			client.say( channel, "pickup killed. " + nick + "  ff ded." );
 		}
 	}
 }
@@ -213,7 +214,7 @@ var client = new irc.Client( 'irc.quakenet.org', 'FauxtressBot', {
 	selfSigned: false,
 	certExpired: false,
 	floodProtection: true,
-	floodProtectionDelay: 100,
+	floodProtectionDelay: 1000,
 	sasl: false,
 	retryCount: 0,
 	retryDelay: 100000,
@@ -229,54 +230,7 @@ client.addListener( 'message', function ( from, to, message ) {
 		add( from );
 	}
 
-	if ( message.startsWith( "!players" ) ) {
-		num = message.substr( 9 );
-		if ( isNumeric( num ) ) {
-			setPlayers( num );
-		} else {
-			// couldnt parse int
-		}
-	}
 
-	if ( message.startsWith( '!captain' ) ) {
-		captains.push( from );
-		client.say( channel, "captains: " + captains );
-	}
-
-	if ( message.startsWith( '!red' ) ) {
-		if ( captains.indexOf( from ) > -1 ) {
-			red.push( from );
-			blue.splice( blue.indexOf( from ) );
-			client.say( channel, from + " assigned to team RED." );
-		}
-	}
-
-
-	if ( message.startsWith( '!blue' ) ) {
-		if ( captains.indexOf( from ) > -1 ) {
-			blue.push( from );
-			red.splice( red.indexOf( from ) );
-			client.say( channel, from + " assigned to team BLUE." );
-		}
-	}
-
-	if ( message.startsWith( "!remove" ) && message.length > 8 ) {
-		var removeee = message.substr( 8 );
-		remove( removeee );
-
-	} else if ( message.startsWith( "!remove" ) ) {
-		if ( pickup.indexOf( from ) > -1 ) {
-			remove( from );
-		} else {
-			client.say( channel, from + " not added" );
-			client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
-		}
-	}
-
-	if ( message.startsWith( "!end" ) ) {
-		endPickup();
-		client.say( channel, "pickup ended by " + from );
-	}
 
 	if ( message.startsWith( "!list" ) || message.startsWith( "!teams" ) ) {
 		if ( pickup.length < 1 )
@@ -284,31 +238,114 @@ client.addListener( 'message', function ( from, to, message ) {
 		else {
 			client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
 
-			client.say( channel, "red : " + red );
-			client.say( channel, "blue : " + blue );
+			if ( red.length > 0 )
+				client.say( channel, "red : \x034" + red + "\x03" );
+			if ( blue.length > 0 )
+				client.say( channel, "blue : \x032" + blue + "\x03" );
 		}
 	}
 
-	if ( message.startsWith( "!nominated" ) ) {
-		listNominated();
-	} else if ( message.startsWith( "!nominate" ) ) {
-		nominated.push( message.substr( 9 ) );
-		client.say( channel, from + " nominated " + message.substr( 9 ) );
-	}
+	if ( pickup.length > 0 ) {
 
-	if ( message.startsWith( "!vote" ) ) {
-		var v = message.substr( 6 );
-		if ( isNumeric( v ) && isAdded( from ) ) {
-
-			vote.push( v - 1 );
-			client.say( channel, from + " voted for " + nominated[ v - 1 ] );
-
+		if ( message.startsWith( "!players" ) ) {
+			num = message.substr( 9 );
+			if ( isNumeric( num ) ) {
+				setPlayers( num );
+			} else {
+				// couldnt parse int
+			}
 		}
+
+
+
+		if ( message.startsWith( "!remove" ) && message.length > 8 ) {
+			var removeee = message.substr( 8 );
+			remove( removeee );
+
+		} else if ( message.startsWith( "!remove" ) ) {
+			if ( pickup.indexOf( from ) > -1 ) {
+				remove( from );
+			} else {
+				client.say( channel, from + " not added" );
+				client.say( channel, pickup.length + "/" + players + " currently added: " + pickup );
+			}
+		}
+
+		if ( message.startsWith( "!end" ) ) {
+			endPickup();
+			client.say( channel, "pickup ended by " + from );
+		}
+
+
+
 	}
 
-	if ( voting && message.isNumeric && isAdded( from ) ) {
-		vote.push( message - 1 );
-		client.say( channel, from + " voted for " + nominated[ message - 1 ] );
+
+	if ( voting ) {
+		if ( message.isNumeric && isAdded( from ) ) {
+			vote.push( message - 1 );
+			client.say( channel, from + " voted for " + nominated[ message - 1 ] );
+		}
+
+		if ( message.startsWith( '!pick ' ) && captains.indexOf( from ) > -1 ) {
+			var picked = message.substr( 6 );
+			if ( red.indexOf( from ) > -1 ) {
+				red.push( picked );
+				client.say( channel, picked + " assigned to team\x034 RED\x03." );
+			}
+			if ( blue.indexOf( from ) > -1 ) {
+				blue.push( picked );
+				client.say( channel, picked + " assigned to team\x032 BLUE\x03." );
+			}
+		}
+
+		if ( message.startsWith( "!nominated" ) ) {
+			listNominated();
+		} else if ( message.startsWith( "!nominate" ) ) {
+			nominated.push( message.substr( 9 ) );
+			client.say( channel, from + " nominated " + message.substr( 9 ) );
+		}
+
+		if ( message.startsWith( "!vote" ) ) {
+			var v = message.substr( 6 );
+			if ( isNumeric( v ) && isAdded( from ) ) {
+
+				vote.push( v - 1 );
+				client.say( channel, from + " voted for " + nominated[ v - 1 ] );
+
+			}
+		}
+		if ( message.startsWith( '!captain' && message.length == 8 ) ) {
+			if ( captains.indexOf( from ) > -1 )
+				captains.push( from );
+		} else if ( message.startsWith( "!captain " ) ) {
+			var nom = message.substr( 9 );
+			if ( captains.indexOf( from ) > -1 && isAdded( nom ) )
+				captains.push( nom );
+		}
+
+		if ( message.startsWith( '!captains' ) ) {
+			client.say( channel, "captains: " + captains );
+		}
+
+		if ( message.startsWith( '!red' ) ) {
+			if ( captains.indexOf( from ) > -1 ) {
+				red.push( from );
+				if ( blue.indexOf( from ) > -1 )
+					blue.splice( blue.indexOf( from ) );
+				client.say( channel, from + " assigned to team\x034 RED\x03." );
+			}
+		}
+
+
+		if ( message.startsWith( '!blue' ) ) {
+			if ( captains.indexOf( from ) > -1 ) {
+				blue.push( from );
+				if ( red.indexOf( from ) > -1 )
+					red.splice( red.indexOf( from ) );
+				client.say( channel, from + " assigned to team\x032 BLUE\x03." );
+			}
+		}
 	}
 } );
 
