@@ -108,7 +108,7 @@ function isFull() {
 		} else
 		//client.say( channel, "no maps were nominated." );
 			voting = true;
-		client.say( channel, "voting is now enabled. !nominate <maps> and !vote <number> !captains pick teams with !red or !blue then !pick <player>" );
+		client.say( channel, "voting is now enabled. !nominate <maps> and !vote <number> !captains can pick teams with !red or !blue then !pick <player>" );
 	}
 }
 
@@ -139,11 +139,11 @@ function isAdded( nick ) {
 		return false;
 }
 
-function hasVoted( nick ) {                                                                                                                                                                                                                 
-	if ( voted.indexOf( nick ) > -1 )                                                                                                                                                                                                    
-		return true;                                                                                                                                                                                                                 
-	else                                                                                                                                                                                                                                 
-		return false;                                                                                                                                                                                                                
+function hasVoted( nick ) {
+	if ( voted.indexOf( nick ) > -1 )
+		return true;
+	else
+		return false;
 }
 
 function add( nick ) {
