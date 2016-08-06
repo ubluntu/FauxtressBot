@@ -320,8 +320,10 @@ client.addListener( 'message', function ( from, to, message ) {
 				captains.push( from );
 		} else if ( message.startsWith( "!captain " ) ) {
 			var nom = message.substr( 9 );
-			if ( captains.indexOf( from ) > -1 && isAdded( nom ) )
+			if ( captains.indexOf( from ) > -1 && isAdded( nom ) ) {
 				captains.push( nom );
+				client.say( channel, from + " just made " + nom + " the other captain!" );
+			}
 		}
 
 		if ( message.startsWith( '!captains' ) ) {

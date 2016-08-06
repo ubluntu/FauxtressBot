@@ -2,10 +2,10 @@ PickupBot was down so here is a quick !sub
 
 ___
 
-to run, clone and:
+to run: clone, cd ./FauxtressBot/ and:
 
     npm install
-    node index.js
+    node ./bin/www
 
 currently supports these commands:
 
@@ -14,13 +14,15 @@ currently supports these commands:
     !remove
     !players <number>
     !teams (!list)
-    !nominated
-    !nominate <map_name>
     !end
-    !vote <number>
-    !captain
-    	!red | !blue - choose your team
-        !pick <player> -assign player to your team
+
+    when voting:
+        !nominated
+        !nominate <map_name>
+        !vote <number>
+        !captains
+        	!red | !blue - choose your team
+            !pick <player> -assign player to your team
 
 TODO:
 
