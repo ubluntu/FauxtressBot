@@ -19,7 +19,8 @@ currently supports these commands:
     !end
     !vote <number>
     !captain
-    	!red | !blue <player>
+    	!red | !blue - choose your team
+        !pick <player> -assign player to your team
 
 TODO:
 
@@ -35,13 +36,12 @@ TODO:
     !admin <message> - send message to active admin 
 
     commands for admins/captains
-        !pick <player>
-            -assign player to your team
+
         !shuffle
             -randomize teams
-        !map <map_name>
         !hold
         !unhold
+        !sendinfo
         !transfer
         !alias <map/player/server> <key> <alias>
         - key -> value pair for shorter names, ie:
