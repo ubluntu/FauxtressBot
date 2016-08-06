@@ -93,6 +93,7 @@ var vote = [];
 var players = 8;
 var hold = false;
 var voting = false;
+var voted = [];
 
 function isNumeric( n ) {
 	return !isNaN( parseFloat( n ) ) && isFinite( n );
@@ -121,6 +122,7 @@ function endPickup() {
 	vote = [];
 	players = 8;
 	hold = false;
+	voted = [];
 }
 
 function pickup( players ) {
@@ -135,6 +137,13 @@ function isAdded( nick ) {
 		return true;
 	else
 		return false;
+}
+
+function hasVoted( nick ) {                                                                                                                                                                                                                 
+	if ( voted.indexOf( nick ) > -1 )                                                                                                                                                                                                    
+		return true;                                                                                                                                                                                                                 
+	else                                                                                                                                                                                                                                 
+		return false;                                                                                                                                                                                                                
 }
 
 function add( nick ) {
@@ -308,7 +317,7 @@ client.addListener( 'message', function ( from, to, message ) {
 
 		if ( message.startsWith( "!vote" ) ) {
 			var v = message.substr( 6 );
-			if ( isNumeric( v ) && isAdded( from ) ) {
+			if ( isNumeric( v ) && isAdded( from ) && !hasVoted( from ) ) {
 
 				vote.push( v - 1 );
 				client.say( channel, from + " voted for " + nominated[ v - 1 ] );
